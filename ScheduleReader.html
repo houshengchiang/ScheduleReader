@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Schedule Reader</title>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!--bootstrap 4-->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript">
+		var fDate = new Date();
+		var y = fDate.getFullYear();
+		var m = fDate.getMonth()+1;
+		var d = fDate.getDate();
+
+		function oneDay(days){
+			fDate.setDate(fDate.getDate() + days);
+			y = fDate.getFullYear();
+			m = fDate.getMonth()+1;
+			d = fDate.getDate();
+			document.getElementById("currentDate").innerHTML = y + "/" + m + "/" + d;
+			readSchedule();
+		}
+
+		function readSchedule(){
+
+			var fileName = y+ ("0"+m).slice(-2) + ".csv";
+			var xhttp = new XMLHttpRequest();
+  			xhttp.onreadystatechange = function() {
+  				if (xhttp.status === 404){
+  					document.getElementById("workSchedule").innerHTML = "No csv file found!";
+
+  				}else{
+  					if(xhttp.readyState === 4 ){
+  					var line = xhttp.responseText.split("\n");
+   					var column = line[d+1].split(",");
+  					var startWork = column[6];
+  					var endWork =  column[8];
+  					var note = column[14];
+  					}
+  					if (startWork == "" && endWork == ""){
+  						document.getElementById("workSchedule").innerHTML = "Break!";
+  					}else{
+  						document.getElementById("workSchedule").innerHTML = "From: " + startWork + " To: " + endWork + "<br>" + note;
+  					}
+  				}
+  			};
+  			xhttp.open("GET", "FYSchedule/" + fileName, true);
+  			xhttp.send();
+
+		}
+	</script>
+</head>
+<body onload="displayInfo()">
+	<div class="container-fluid text-center">
+		<h1 id="currentDate" style="margin: 17px auto;">currentDate</h3>
+		<button id="minusDate" onclick="oneDay(-1)">-1 Day</button>
+		<button id="addDate" onclick="oneDay(1)">+1 Day</button>
+		<hr>
+		<h3 id="workSchedule" onload="readSchedule()">workSchedule</h3>
+	</div>
+
+	<script type="text/javascript">
+		function displayInfo(){
+			document.getElementById("currentDate").innerHTML = y + "/" + m + "/" + d;
+			readSchedule();
+		}	
+	</script>
+
+</body>
+</html>
